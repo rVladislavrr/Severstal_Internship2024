@@ -4,26 +4,27 @@ from src.roll_warehouse.shemas import MetalRoll, FilterAll
 from sqlalchemy import select, and_, or_, func
 from fastapi import HTTPException, status
 from src.roll_warehouse.utils import help_selects, creat_Dict_day, sec_time_str, get_listFilter
+from src.base import get_session
 
 
 class MetalRollManager:  # Менеджер работы с бд
 
     @staticmethod
-    async def create_stats(session):  # статика за прошедший день
-
-        utc_time = datetime.now(timezone.utc).replace(microsecond=0, second=0, minute=0, hour=0)  # берём
-        # сегодняшний день только в 00 и смотрим, которые были удалены сегодня или не удалены вообще,
-        # те и есть на нашем складе
-        filters = [MetalRollORM.data_del > utc_time, MetalRollORM.data_del == None]
-        query = select(MetalRollORM).where(or_(*filters))
-        res = (await session.execute(query)).scalars().all()
-        count_rolls = len(res)
-        sum_we_rolls = sum(map(lambda x: x.weight, res))
-        day = StatisticsDay(day=utc_time,
-                            countMetalRoll=count_rolls,
-                            sumWeightMetalRoll=sum_we_rolls)
-        session.add(day)
-        await session.commit()
+    async def create_stats():  # статика за прошедший день
+        async with await get_session() as session:
+            utc_time = datetime.now(timezone.utc).replace(microsecond=0, second=0, minute=0, hour=0)  # берём
+            # сегодняшний день только в 00 и смотрим, которые были удалены сегодня или не удалены вообще,
+            # те и есть на нашем складе
+            filters = [MetalRollORM.data_del > utc_time, MetalRollORM.data_del == None]
+            query = select(MetalRollORM).where(or_(*filters))
+            res = (await session.execute(query)).scalars().all()
+            count_rolls = len(res)
+            sum_we_rolls = sum(map(lambda x: x.weight, res))
+            day = StatisticsDay(day=utc_time,
+                                countMetalRoll=count_rolls,
+                                sumWeightMetalRoll=sum_we_rolls)
+            session.add(day)
+            await session.commit()
 
     @staticmethod
     async def add_t(roll, session):

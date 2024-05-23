@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, Depends
 from asyncpg import ConnectionDoesNotExistError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.base import get_async_session
+from src.base import get_async_session,get_session
 from src.roll_warehouse.shemas import MetalRollAdd, MetalRoll, FilterAll
 from src.roll_warehouse.manager import MetalRollManager
 from fastapi import HTTPException, Query
@@ -103,8 +103,8 @@ async def get_statistics(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-async def collect_statistics(session: AsyncSession = Depends(get_async_session)):  # функция на добавление данных статистики в бд за прошедший день
+async def collect_statistics(): # функция на добавление данных статистики в бд за прошедший день
     try:
-        await MetalRollManager.create_stats(session)
+        await MetalRollManager.create_stats()
     except ConnectionDoesNotExistError as e:
         print(e)
