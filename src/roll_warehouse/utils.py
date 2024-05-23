@@ -22,7 +22,10 @@ def help_selects(start, end, foo, obj):
 
 
 def creat_Dict_day(obj):
-    return {'День': obj[0], "Ответ": obj[1]}
+    if obj:
+        return {'День': obj[0], "Ответ": obj[1]}
+    else:
+        return 'Нет статистики по дням (Таблица пуста)'
 
 def sec_time_str(time):
     """
