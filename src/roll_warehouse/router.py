@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, Depends
 from asyncpg import ConnectionDoesNotExistError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.base import get_async_session,get_session
+from src.base import get_async_session
 from src.roll_warehouse.shemas import MetalRollAdd, MetalRoll, FilterAll
 from src.roll_warehouse.manager import MetalRollManager
 from fastapi import HTTPException, Query
